@@ -1,4 +1,5 @@
 """v0.8.1 — MCP dispatch + extras hint."""
+import json
 import shutil
 import sys
 import tempfile
@@ -33,13 +34,44 @@ def test_tool_schemas_shape():
 
 
 def test_dispatch_remember_and_search(mk):
+    mk.track("Simon Kim", entity_type="person", source="test")
     result = mcp_mod.dispatch(mk, "remember",
                               {"name": "Simon Kim", "info": "CEO of Hashed", "source": "test"})
     assert result["ok"] is True
     assert result["name"] == "Simon Kim"
 
     hits = mcp_mod.dispatch(mk, "search", {"query": "Simon"})
-    assert isinstance(hits, list)
+    assert isinstance(hits, dict)
+    assert "results" in hits
+    assert hits["total_results"] >= 1
+
+
+def test_dispatch_search_defaults_to_smart_and_caps_results(mk, monkeypatch):
+    calls = []
+
+    def fake_smart(query, **kwargs):
+        calls.append(("smart", query, kwargs))
+        return [{"name": "Simon", "text": "x" * 2501}]
+
+    monkeypatch.setattr(mk, "search_smart", fake_smart)
+    result = mcp_mod.dispatch(mk, "search", {"query": " Simon "})
+    assert calls == [("smart", "Simon", {"top_k": 8, "fuzzy": False, "cache": True})]
+    assert result["truncated"] is True
+    assert "results[0].text" in result["truncated_fields"]
+    assert len(result["results"][0]["text"]) == 2000
+
+
+def test_dispatch_legacy_search_is_explicit(mk, monkeypatch):
+    calls = []
+
+    def fake_search(query, **kwargs):
+        calls.append(("legacy", query, kwargs))
+        return [{"name": "Simon"}]
+
+    monkeypatch.setattr(mk, "search", fake_search)
+    result = mcp_mod.dispatch(mk, "search", {"query": "Simon", "strategy": "legacy", "fuzzy": True})
+    assert calls == [("legacy", "Simon", {"fuzzy": True})]
+    assert result["total_results"] == 1
 
 
 def test_dispatch_unknown_tool_raises(mk):
@@ -79,6 +111,15 @@ def test_dispatch_recall_does_not_pollute_stdout(mk, capsys):
     mcp_mod.dispatch(mk, "recall", {"name": "Silent Co"})
     captured = capsys.readouterr()
     assert captured.out == ""
+
+
+def test_json_and_error_result_shapes():
+    ok = mcp_mod._json_text({"hello": "world"})
+    assert json.loads(ok[0].text) == {"hello": "world"}
+
+    err = mcp_mod._error_result("invalid_input", "bad")
+    assert err.isError is True
+    assert json.loads(err.content[0].text)["error"]["type"] == "invalid_input"
 
 
 def test_require_mcp_hint_when_missing(monkeypatch, capsys):

@@ -41,13 +41,28 @@ Zero dependencies — stdlib only.
 
 from __future__ import annotations
 
-import fcntl
 import json
 import os
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, NamedTuple, Union
+
+try:
+    import fcntl
+    _HAS_FCNTL = True
+except ModuleNotFoundError:  # pragma: no cover - exercised on Windows
+    _HAS_FCNTL = False
+
+    class _NoopFcntl:
+        LOCK_EX = 1
+        LOCK_UN = 8
+
+        @staticmethod
+        def flock(fd: int, flag: int) -> None:
+            return None
+
+    fcntl = _NoopFcntl()  # type: ignore[assignment]
 
 SCHEMA_VERSION = 1
 
@@ -270,11 +285,17 @@ def compact(path: Union[str, Path]) -> CompactResult:
                 os.fsync(out)
             finally:
                 os.close(out)
+            if not _HAS_FCNTL:
+                fcntl.flock(fd, fcntl.LOCK_UN)
+                os.close(fd)
+                fd = -1
             os.replace(str(tmp), str(path))
         finally:
-            fcntl.flock(fd, fcntl.LOCK_UN)
+            if fd >= 0:
+                fcntl.flock(fd, fcntl.LOCK_UN)
     finally:
-        os.close(fd)
+        if fd >= 0:
+            os.close(fd)
     return CompactResult(
         kept=kept,
         removed_tombstoned=removed_tombstoned,
