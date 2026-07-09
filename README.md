@@ -1,5 +1,15 @@
 <img src="assets/memkraft-banner.webp" alt="MemKraft - Zero-dependency compound memory for AI agents" width="100%">
 
+> **Fork note — stepbyjason-lab/memkraft**
+>
+> This public fork carries a Windows/Codex/Claude-focused MCP patch on top of
+> upstream `seojoonkim/memkraft`. The MCP stdio server now defaults `search` to
+> bounded `search_smart(top_k=8, fuzzy=False, cache=True)`, returns JSON MCP
+> payloads, marks tool errors with `isError=true`, redirects noisy stdout away
+> from the JSON-RPC stream, caps search/recall payloads, and keeps the legacy
+> search path available only via `strategy="legacy"`. It also includes a small
+> Windows compatibility patch for `store_core` where `fcntl` is unavailable.
+
 # MemKraft 🧠
 
 > **Bitemporal memory × empirical tuning: the first self-improvement ledger for AI agents.**
