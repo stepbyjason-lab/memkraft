@@ -14,7 +14,7 @@ Remember sourced facts. Retrieve bounded context. Act with any model or agent. R
 [![Tests](https://img.shields.io/github/actions/workflow/status/seojoonkim/memkraft/gym-gate.yml?label=tests)](https://github.com/seojoonkim/memkraft/actions/workflows/gym-gate.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-[Quickstart](#quickstart) · [The loop](#the-accountable-memory-loop) · [Python API](#python-api) · [CLI](#cli-reference) · [Hermes Agent](docs/HERMES_AGENT.md) · [MCP](docs/mcp-setup.md)
+[Quickstart](#quickstart) · [The loop](#the-accountable-memory-loop) · [Python API](#python-api) · [CLI](#cli-reference) · [Hermes Agent](docs/HERMES_AGENT.md) · [MCP](docs/mcp-setup.md) · [Maintained fork MCP port](docs/FORK_MCP_V4_PORT.md)
 
 </div>
 

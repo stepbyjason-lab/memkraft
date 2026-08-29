@@ -24,9 +24,9 @@ def _query(op, target=None, args=None):
 
 def test_existing_four_schema_objects_are_byte_equivalent():
     expected = [
-        {"name": "remember", "description": "Store new information about an entity (person/org/project).", "inputSchema": {"type": "object", "properties": {"name": {"type": "string"}, "info": {"type": "string"}, "source": {"type": "string", "default": "mcp"}}, "required": ["name", "info"]}},
-        {"name": "search", "description": "Hybrid search over all stored memory.", "inputSchema": {"type": "object", "properties": {"query": {"type": "string"}, "fuzzy": {"type": "boolean", "default": True}}, "required": ["query"]}},
-        {"name": "recall", "description": "Return a dossier for a single entity.", "inputSchema": {"type": "object", "properties": {"name": {"type": "string"}}, "required": ["name"]}},
+        {"name": "remember", "description": "Store new information about an entity (person/org/project).", "inputSchema": {"type": "object", "properties": {"name": {"type": "string", "maxLength": 2000}, "info": {"type": "string", "maxLength": 65536}, "source": {"type": "string", "maxLength": 2000, "default": "mcp"}, "entity_type": {"type": "string", "maxLength": 64, "default": "person"}}, "required": ["name", "info"]}},
+        {"name": "search", "description": "Bounded search over stored memory. Defaults to fast smart search.", "inputSchema": {"type": "object", "properties": {"query": {"type": "string", "maxLength": 2000}, "strategy": {"type": "string", "enum": ["smart", "v2", "legacy"], "default": "smart"}, "fuzzy": {"type": "boolean", "default": False}, "top_k": {"type": "integer", "minimum": 1, "maximum": 20, "default": 8}}, "required": ["query"]}},
+        {"name": "recall", "description": "Return a dossier for a single entity.", "inputSchema": {"type": "object", "properties": {"name": {"type": "string", "maxLength": 2000}}, "required": ["name"]}},
         {"name": "link", "description": "Create a wiki-style link between two entities.", "inputSchema": {"type": "object", "properties": {"source": {"type": "string"}, "target": {"type": "string"}}, "required": ["source", "target"]}},
     ]
     assert mcp._tool_schemas()[:4] == expected

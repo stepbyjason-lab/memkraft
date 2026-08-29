@@ -1,5 +1,10 @@
 # MCP Setup — Claude Desktop + Cursor
 
+> **Maintained fork note:** This document describes generic upstream MCP setup.
+> For the maintained v4 fork's contract, dedicated virtual-environment rollout,
+> validation, and rollback boundary, read
+> [`FORK_MCP_V4_PORT.md`](FORK_MCP_V4_PORT.md) first.
+
 MemKraft ships an MCP (Model Context Protocol) server that exposes the four core primitives as tools:
 
 - `remember(name, info, source)` — append to an entity timeline

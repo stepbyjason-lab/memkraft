@@ -67,6 +67,12 @@ def install_v3_compat(cls: type) -> None:
         call_kwargs = dict(kwargs)
         if top_k is not None:
             call_kwargs["top_k"] = top_k
+        # ``fuzzy`` and ``cache`` are explicit wrapper parameters, so they are
+        # not present in ``kwargs``.  Forward them for the two MCP-exposed
+        # modern modes; otherwise callers silently get each target's defaults.
+        if mode in {"v2", "smart"}:
+            call_kwargs["fuzzy"] = fuzzy
+            call_kwargs["cache"] = cache
         token = _INTERNAL_COMPAT_DISPATCH.set(True)
         try:
             return target(self, query, **call_kwargs)

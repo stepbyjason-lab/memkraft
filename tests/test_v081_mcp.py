@@ -37,9 +37,12 @@ def test_dispatch_remember_and_search(mk):
                               {"name": "Simon Kim", "info": "CEO of Hashed", "source": "test"})
     assert result["ok"] is True
     assert result["name"] == "Simon Kim"
+    assert result["canonical_name"] == "simon-kim"
 
     hits = mcp_mod.dispatch(mk, "search", {"query": "Simon"})
-    assert isinstance(hits, list)
+    assert isinstance(hits["results"], list)
+    assert hits["returned_results"] <= hits["total_results"] <= 8
+    assert any("Simon Kim" in str(hit) for hit in hits["results"])
 
 
 def test_dispatch_unknown_tool_raises(mk):
