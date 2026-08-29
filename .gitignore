@@ -23,6 +23,15 @@ Thumbs.db
 .venv/
 venv/
 env/
+.live-venv/
+.mcp1-venv/
+.smoke-venv/
+.smoke2-venv/
+.smoke3-venv/
+.pytest_cache/
+
+# Local rollout / review evidence (durable handoff is versioned separately)
+.scratch/
 
 # MemCraft runtime
 memory/
